@@ -12,3 +12,4 @@ include = ["/Cargo.toml", "/LICENSE", "/README.md", "/src/**", "/tests/**"]
 description = "Yeet that typo into the shadow realm before it makes it to production!"
 
 [dependencies]
+regex = "1.11.1"
