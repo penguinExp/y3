@@ -1,9 +1,8 @@
+use regex::Regex;
 use std::{
     fs::File,
     io::{self, BufRead, BufReader},
 };
-
-use regex::Regex;
 
 ///
 /// Struct to represent the position of the [Token] in the input file
@@ -11,17 +10,17 @@ use regex::Regex;
 #[derive(Debug)]
 pub struct Position {
     ///
-    /// Starting position of the token in the input file
+    /// Byte offset where the token starts in the input file
     ///
     start: usize,
 
     ///
-    /// Ending position of the token in the input file
+    /// Byte offset where the token ends in the input file
     ///
     end: usize,
 
     ///
-    /// Line number of the token in the input file
+    /// 1-based line number of the token in the input file
     ///
     line_no: usize,
 }
@@ -30,12 +29,32 @@ impl Position {
     ///
     /// Getter to read the [start] position offset for the token
     ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use y3::tokenizer::{Token};
+    ///
+    /// let token = Token::new("word", 0, 3, 1);
+    ///
+    /// assert_eq!(token.position().start(), 0);
+    /// ```
+    ///
     pub fn start(&self) -> usize {
         self.start
     }
 
     ///
     /// Getter to read the [end] position offset for the token
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use y3::tokenizer::{Token};
+    ///
+    /// let token = Token::new("word", 0, 3, 1);
+    ///
+    /// assert_eq!(token.position().end(), 3);
+    /// ```
     ///
     pub fn end(&self) -> usize {
         self.end
@@ -44,6 +63,16 @@ impl Position {
     ///
     /// Getter to read the [line_no] of the token
     ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use y3::tokenizer::{Token};
+    ///
+    /// let token = Token::new("word", 0, 3, 1);
+    ///
+    /// assert_eq!(token.position().line_no(), 1);
+    /// ```
+    ///
     pub fn line_no(&self) -> usize {
         self.line_no
     }
@@ -51,11 +80,6 @@ impl Position {
 
 ///
 /// Struct representing word parsed from input file to be spell checked
-///
-/// # Example
-/// ```rs
-/// let token = Token::new("word", 0, 3, 1);
-/// ```
 ///
 #[derive(Debug)]
 pub struct Token {
@@ -73,6 +97,33 @@ pub struct Token {
 }
 
 impl Token {
+    ///
+    /// Create a new instance of [Token]
+    ///
+    /// # Arguments
+    ///
+    /// * `word` - A string slice representing content of the token.
+    /// * `start` - The starting byte index of the token.
+    /// * `end` - The ending byte index of the token.
+    /// * `line_no` - 1-based line number representing where the token is located.
+    ///
+    /// # Returns
+    ///
+    /// * `Token` - A new [`Token`] instance with the specified word and position metadata.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use y3::tokenizer::{Token};
+    ///
+    /// let token = Token::new("word", 0, 3, 1);
+    ///
+    /// assert_eq!(token.word(), "word");
+    /// assert_eq!(token.position().start(), 0);
+    /// assert_eq!(token.position().end(), 3);
+    /// assert_eq!(token.position().line_no(), 1);
+    /// ```
+    ///
     pub fn new(word: &str, start: usize, end: usize, line_no: usize) -> Self {
         Self {
             word: word.to_string(),
@@ -87,12 +138,34 @@ impl Token {
     ///
     /// Getter to read the parsed `word`
     ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use y3::tokenizer::{Token};
+    ///
+    /// let token = Token::new("word", 0, 3, 1);
+    ///
+    /// assert_eq!(token.word(), "word");
+    /// ```
+    ///
     pub fn word(&self) -> &str {
         &self.word
     }
 
     ///
     /// Getter to read the parsed [Position]
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use y3::tokenizer::{Token};
+    ///
+    /// let token = Token::new("word", 0, 3, 1);
+    ///
+    /// assert_eq!(token.position().start(), 0);
+    /// assert_eq!(token.position().end(), 3);
+    /// assert_eq!(token.position().line_no(), 1);
+    /// ```
     ///
     pub fn position(&self) -> &Position {
         &self.position
@@ -133,24 +206,20 @@ struct Patterns {
 }
 
 impl Patterns {
+    ///
+    /// Creates a new instance of `Patterns` with predefined [Regex] patterns.
+    ///
     fn new() -> Self {
         Self {
             ignore_patterns: vec![
-                // URLs
-                Regex::new(r"https?://\S+").unwrap(),
-                // File paths
-                Regex::new(r"[\w\-\.]+(/[\w\-\.]+)+").unwrap(),
-                // Pure numbers
-                Regex::new(r"\b\d+\b").unwrap(),
-                // Regex patterns
-                Regex::new(r"\\[a-zA-Z]+[{[^()]+}]*").unwrap(),
-                // Email-like patterns
-                Regex::new(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b").unwrap(),
+                Regex::new(r"https?://\S+").unwrap(),           // URLs
+                Regex::new(r"[\w\-\.]+(/[\w\-\.]+)+").unwrap(), // File paths
+                Regex::new(r"\b\d+\b").unwrap(),                // Pure numbers
+                Regex::new(r"\\[a-zA-Z]+[{[^()]+}]*").unwrap(), // Regex patterns
+                Regex::new(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b").unwrap(), // Email-like patterns
             ],
-            // potential tokens
-            word_pattern: Regex::new(r"[a-zA-Z]+[0-9]*[a-zA-Z]*").unwrap(),
-            // split formats like -, _, etc.
-            split_pattern: Regex::new(r"[ _\-—]").unwrap(),
+            word_pattern: Regex::new(r"[a-zA-Z]+[0-9]*[a-zA-Z]*").unwrap(), // potential tokens
+            split_pattern: Regex::new(r"[ _\-—]").unwrap(), // split formats like -, _, etc.
         }
     }
 }
@@ -185,9 +254,11 @@ impl Tokenizer {
     ///
     /// # Example
     ///
-    /// ```rs
-    ///  let mut tokenizer = Tokenizer::new();
-    ///  assert_eq!(tokenizer.tokens().len(), 0 as usize);
+    /// ```rust
+    /// use y3::tokenizer::Tokenizer;
+    ///
+    /// let mut tokenizer = Tokenizer::new();
+    /// assert_eq!(tokenizer.tokens().len(), 0);
     /// ```
     ///
     pub fn new() -> Self {
@@ -211,18 +282,124 @@ impl Tokenizer {
         self.tokens.clear();
     }
 
+    ///
+    /// Parse [Token]'s from the [file_path]
+    ///
     pub fn tokenize(&mut self, file_path: &str) -> io::Result<()> {
         let file = File::open(file_path)?;
         let reader = BufReader::new(file);
 
         for (line_no, line) in reader.lines().enumerate() {
             let line = line?;
-            let mut pos: usize = 0;
+            let mut offset = 0;
 
-            // split lines
-            for chunk in self.patterns.split_pattern.split(&line) {}
+            // Step 1: Split by spaces
+            let chunks: Vec<&str> = line.split_whitespace().collect();
+
+            for chunk in chunks {
+                let mut chunk = chunk.trim();
+
+                // Step 2: Remove symbols and brackets at start or end
+                chunk = chunk
+                    .trim_start_matches(|c: char| !c.is_alphanumeric() && c != '\'')
+                    .trim_end_matches(|c: char| !c.is_alphanumeric() && c != '\'');
+
+                if chunk.is_empty() {
+                    continue;
+                }
+
+                // Step 3: Eliminate using [ignore_patterns]
+                if self
+                    .patterns
+                    .ignore_patterns
+                    .iter()
+                    .any(|p| p.is_match(chunk))
+                {
+                    continue;
+                }
+
+                // Step 4: Split joined words using [split_patterns]
+                let sub_chunks: Vec<&str> = self.patterns.split_pattern.split(chunk).collect();
+
+                for sub_chunk in sub_chunks {
+                    if sub_chunk.is_empty() {
+                        continue;
+                    }
+
+                    // Step 5: Extract tokens using [word_pattern]
+                    for mat in self.patterns.word_pattern.find_iter(sub_chunk) {
+                        let word = mat.as_str().to_string();
+
+                        // Ignore single letters
+                        if word.len() == 1 {
+                            continue;
+                        }
+
+                        // Step 6: Preprocess tokens (e.g., split camelCase, convert TITLEcase)
+                        let split_words = Self::split_word_cases(&word);
+
+                        for split_word in split_words {
+                            let start = offset + mat.start();
+                            let end = offset + mat.end();
+
+                            self.tokens.push(Token {
+                                word: split_word,
+                                position: Position {
+                                    start,
+                                    end: end - 1,
+                                    line_no: line_no + 1,
+                                },
+                            });
+                        }
+                    }
+                }
+
+                // Update offset by the length of the original chunk plus one (for the space)
+                // Adjust to account for spaces
+                offset += chunk.len() + 1;
+            }
         }
 
         Ok(())
+    }
+
+    ///
+    /// Splits a given word into smaller words based on their case transitions.
+    ///
+    /// It is useful for tokenizing _camelCase_ and _PascalCase_ words into their
+    /// component parts.
+    ///
+    /// # Arguments
+    ///
+    /// * `word` - A string slice representing the word to be split.
+    ///
+    /// # Returns
+    ///
+    /// * `Vec<String>` - A vector of `String` containing the individual word components split based
+    /// on case transitions.
+    ///
+    /// e.g. "camelCaseExample", outputs -> `["camel", "Case", "Example"]`
+    ///
+    /// # Notes
+    ///
+    /// - Consecutive uppercase letters (e.g., "TITLECase") are kept together
+    /// - Words without case transitions (e.g., "simple") are returned as a
+    /// single-element vector.
+    ///
+    fn split_word_cases(word: &str) -> Vec<String> {
+        let mut result = Vec::new();
+        let mut start = 0;
+
+        for (i, c) in word.char_indices() {
+            if i > 0 && c.is_uppercase() && !word[start..i].chars().all(char::is_uppercase) {
+                result.push(word[start..i].to_string());
+                start = i;
+            }
+        }
+
+        // Append remaining part of the word
+        result.push(word[start..].to_string());
+
+        result
     }
 }
