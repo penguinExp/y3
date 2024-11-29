@@ -1,4 +1,5 @@
-use std::{io, path::Path};
+use std::io;
+use y3::reader::Reader;
 
 fn main() -> io::Result<()> {
     let args: Vec<String> = std::env::args().collect();
@@ -8,12 +9,32 @@ fn main() -> io::Result<()> {
         return Ok(());
     }
 
-    let file_path = &args[1];
+    let dir_path = &args[1];
 
-    if !Path::new(file_path).exists() {
-        eprintln!("[Error] File not found - {}", file_path);
-        return Ok(());
+    let mut reader = Reader::new();
+
+    reader.get_files(dir_path)?;
+
+    println!("Fetched {} files!", reader.paths().len());
+
+    println!("----------");
+
+    for p in reader.paths() {
+        println!("{:?}", p);
     }
+
+    // if !Path::new(file_path).exists() {
+    //     eprintln!("[Error] File not found - {}", file_path);
+    //     return Ok(());
+    // }
+
+    // let mut tokenizer = Tokenizer::new();
+
+    // tokenizer.tokenize(file_path)?;
+
+    // for token in tokenizer.tokens() {
+    //     println!("{:?}", token);
+    // }
 
     Ok(())
 }
