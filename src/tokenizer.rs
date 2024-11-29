@@ -1,3 +1,43 @@
+//!
+//! # Tokenizer
+//!
+//! It provides a tokenizer for input files to generate [Token]'s for spell checking
+//!
+//! ## Working
+//!
+//! It follows a multi-stage tokenization approach:
+//!
+//! ### Preprocessing
+//!
+//! - Read the input_file line by line
+//! - Extract chunks by splitting on whitespaces
+//! - Remove special characters or non-alphabetical characters from the edges (both start
+//!   & end)
+//! - Ignore patterns like URLs, FilePath's, etc.
+//!
+//! ### Token Extraction
+//!
+//! - Deconstructs camelCase and PascalCase
+//! - Maintains contextual special characters (e.g. "sh🤬t" -> ["sh🤬t"])
+//! - Eliminates non-meaningful tokens (e.g. single letters, emojis, trailing or starting
+//!   symbols)
+//!
+//! ## Ignored Patterns
+//!
+//! List of patterns which are ignored while tokenization
+//!
+//! - URL and file path
+//! - Regex pattern
+//! - Numeric content like phone numbers
+//! - Punctuation and symbol's like emojis
+//!
+//! ## Considerations
+//!
+//! - Single-letter tokens are discarded
+//! - Standalone numeric strings are ignored
+//! - Case sensitivity is preserved during token generation
+//!
+
 use regex::Regex;
 use std::{
     fs::File,
