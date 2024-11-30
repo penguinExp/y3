@@ -1,2 +1,2 @@
 [workspace]
-members = ["y3"]
+members = ["dict_processor", "y3"]
