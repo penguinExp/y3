@@ -1,15 +1,2 @@
-[package]
-name = "y3"
-license = "MIT"
-edition = "2021"
-version = "0.1.0"
-rust-version = "1.81.0"
-repository = "https://github.com/frozen-beak/y3/"
-keywords = ["YeetYourYpos", "y3", "spell checker"]
-authors = ["Aditya Motale <adityamotale.22@gmail.com>"]
-categories = ["command-line-utilities", "development-tools"]
-include = ["/Cargo.toml", "/LICENSE", "/README.md", "/src/**", "/tests/**"]
-description = "Yeet that typo into the shadow realm before it makes it to production!"
-
-[dependencies]
-regex = "1.11.1"
+[workspace]
+members = ["y3"]
