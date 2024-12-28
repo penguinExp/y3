@@ -13,3 +13,4 @@ description = "Yeet that typo into the shadow realm before it makes it to produc
 
 [dependencies]
 regex = "1.11.1"
+globset = "0.4"

@@ -11,7 +11,7 @@ fn main() -> io::Result<()> {
 
     let dir_path = &args[1];
 
-    let mut reader = Reader::new();
+    let mut reader = Reader::new(dir_path);
 
     reader.get_files(dir_path)?;
 
